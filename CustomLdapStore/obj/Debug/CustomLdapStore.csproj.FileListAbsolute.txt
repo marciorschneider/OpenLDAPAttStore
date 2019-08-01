@@ -6,3 +6,9 @@ C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\bin\Debug\Micro
 C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\obj\Debug\CustomLdapStore.csproj.CopyComplete
 C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\obj\Debug\CustomLdapStore.dll
 C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\obj\Debug\CustomLdapStore.pdb
+C:\GitHub\anonymldapattstore\CustomLdapStore\bin\Debug\CustomLdapStore.dll
+C:\GitHub\anonymldapattstore\CustomLdapStore\bin\Debug\CustomLdapStore.pdb
+C:\GitHub\anonymldapattstore\CustomLdapStore\obj\Debug\CustomLdapStore.csproj.CoreCompileInputs.cache
+C:\GitHub\anonymldapattstore\CustomLdapStore\obj\Debug\CustomLdapStore.csproj.CopyComplete
+C:\GitHub\anonymldapattstore\CustomLdapStore\obj\Debug\CustomLdapStore.dll
+C:\GitHub\anonymldapattstore\CustomLdapStore\obj\Debug\CustomLdapStore.pdb

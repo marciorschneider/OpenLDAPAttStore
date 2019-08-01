@@ -9,3 +9,14 @@ C:\temp\anonymldapattstore\sourceCode\sourceCode\TestLdapStore\bin\Debug\CustomL
 C:\temp\anonymldapattstore\sourceCode\sourceCode\TestLdapStore\obj\Debug\TestLdapStore.csproj.CopyComplete
 C:\temp\anonymldapattstore\sourceCode\sourceCode\TestLdapStore\obj\Debug\TestLdapStore.exe
 C:\temp\anonymldapattstore\sourceCode\sourceCode\TestLdapStore\obj\Debug\TestLdapStore.pdb
+C:\GitHub\anonymldapattstore\TestLdapStore\bin\Debug\TestLdapStore.exe.config
+C:\GitHub\anonymldapattstore\TestLdapStore\bin\Debug\TestLdapStore.exe
+C:\GitHub\anonymldapattstore\TestLdapStore\bin\Debug\TestLdapStore.pdb
+C:\GitHub\anonymldapattstore\TestLdapStore\bin\Debug\CustomLdapStore.dll
+C:\GitHub\anonymldapattstore\TestLdapStore\bin\Debug\Microsoft.IdentityServer.ClaimsPolicy.dll
+C:\GitHub\anonymldapattstore\TestLdapStore\bin\Debug\CustomLdapStore.pdb
+C:\GitHub\anonymldapattstore\TestLdapStore\obj\Debug\TestLdapStore.csprojAssemblyReference.cache
+C:\GitHub\anonymldapattstore\TestLdapStore\obj\Debug\TestLdapStore.csproj.CoreCompileInputs.cache
+C:\GitHub\anonymldapattstore\TestLdapStore\obj\Debug\TestLdapStore.csproj.CopyComplete
+C:\GitHub\anonymldapattstore\TestLdapStore\obj\Debug\TestLdapStore.exe
+C:\GitHub\anonymldapattstore\TestLdapStore\obj\Debug\TestLdapStore.pdb
