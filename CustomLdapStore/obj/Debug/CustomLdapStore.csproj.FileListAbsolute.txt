@@ -1,0 +1,8 @@
+C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\obj\Debug\CustomLdapStore.csprojAssemblyReference.cache
+C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\obj\Debug\CustomLdapStore.csproj.CoreCompileInputs.cache
+C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\bin\Debug\CustomLdapStore.dll
+C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\bin\Debug\CustomLdapStore.pdb
+C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\bin\Debug\Microsoft.IdentityServer.ClaimsPolicy.dll
+C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\obj\Debug\CustomLdapStore.csproj.CopyComplete
+C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\obj\Debug\CustomLdapStore.dll
+C:\temp\anonymldapattstore\sourceCode\sourceCode\CustomLdapStore\obj\Debug\CustomLdapStore.pdb
