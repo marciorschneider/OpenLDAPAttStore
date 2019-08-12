@@ -43,7 +43,7 @@ namespace TestLdapstore
                 Usage();
                 return;
             }
-            string XmlConfigurationFile = args[1];
+            string XmlConfigurationFile = args[0];
             string filter = null;
             Dictionary<string, string> dict = new Dictionary<string, string>();
             try

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomLdapStore", "CustomLd
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLdapStore", "TestLdapStore\TestLdapStore.csproj", "{CAFFFA36-6938-485F-84E2-5A156ECBBD95}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLdapStore2", "TestLdapStore2\TestLdapStore2.csproj", "{E224DEA6-AC0E-4D9B-ACDB-76A8B8908E57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{CAFFFA36-6938-485F-84E2-5A156ECBBD95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAFFFA36-6938-485F-84E2-5A156ECBBD95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAFFFA36-6938-485F-84E2-5A156ECBBD95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E224DEA6-AC0E-4D9B-ACDB-76A8B8908E57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E224DEA6-AC0E-4D9B-ACDB-76A8B8908E57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E224DEA6-AC0E-4D9B-ACDB-76A8B8908E57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E224DEA6-AC0E-4D9B-ACDB-76A8B8908E57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

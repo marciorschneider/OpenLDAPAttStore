@@ -10,39 +10,52 @@ namespace CustomLdapStore
     {
         LdapConnection connection;
         string target;
+        bool returnDN;
 
         bool withAttributeStoreQueryExecutionException = false;
 
-        #region IAttributeStore Membres
+        #region IAttributeStore Members
 
         public IAsyncResult BeginExecuteQuery(string query, string[] parameters, AsyncCallback callback, object state)
         {
             if (query == null || query.Length == 0) throw new AttributeStoreQueryFormatException("The query received is null");
 
             AsyncResult queryResult;
+
             try
             {
                 if (parameters != null && parameters.Length != 0) query = string.Format(query, parameters);
                 string[] queryParts = query.Split(new char[] { ';' });
-                if (queryParts.Length != 2)
+                if (queryParts.Length != 3)
                 {
-                    throw new AttributeStoreQueryFormatException("Invalid query: A query must have two parts : " + query);
+                    throw new AttributeStoreQueryFormatException("Invalid query: A query must have three parts: " + query);
                 }
                 string ldapFilter = queryParts[0].Trim();
                 if (ldapFilter.Length == 0)
                 {
-                    throw new AttributeStoreQueryFormatException("Invalid query: A filter is needed : " + query);
+                    throw new AttributeStoreQueryFormatException("Invalid query: A filter is needed: " + query);
                 }
 
-                string attributesList = queryParts[1].Trim();
+                //verifying if we should return the object DN
+                try
+                {
+                    returnDN = Convert.ToBoolean(queryParts[1].Trim());
+                }
+                catch
+                {
+                    throw new AttributeStoreQueryFormatException("Invalid query: You must specify if the query should return the DN: " + query);
+                }
+
+                string attributesList = queryParts[2].Trim();
                 if (attributesList.Length == 0)
                 {
-                    throw new AttributeStoreQueryFormatException("Invalid query: A list of attributes is needed : " + query);
+                    throw new AttributeStoreQueryFormatException("Invalid query: A list of attributes is needed: " + query);
                 }
 
                 string[] attributesToReturn = attributesList.Split(new char[] { ',' });
-                for (int i = 1; i < attributesToReturn.Length; i++)
+                for (int i = 0; i < attributesToReturn.Length; i++)
                 {
+
                     attributesToReturn[i] = attributesToReturn[i].Trim();
                     if (attributesToReturn[i].Length == 0)
                     {
@@ -59,7 +72,7 @@ namespace CustomLdapStore
                     attributesToReturn);
 
                 queryResult = new TypedAsyncResult<string[][]>(callback, state);
-                LdapAnonymousStoreAsyncState status = new LdapAnonymousStoreAsyncState(attributesToReturn, queryResult);
+                LdapAnonymousStoreAsyncState status = new LdapAnonymousStoreAsyncState(returnDN,attributesToReturn, queryResult);
                 IAsyncResult iar = connection.BeginSendRequest(request, PartialResultProcessing.NoPartialResultSupport, ReceiveResponse, status);
             }
             catch (Exception e)
@@ -146,62 +159,87 @@ namespace CustomLdapStore
         {
             Exception e = null;
             string[][] r = null;
+
             LdapAnonymousStoreAsyncState state = (LdapAnonymousStoreAsyncState)iar.AsyncState;
 
             try
             {
                 SearchResponse response = (SearchResponse)connection.EndSendRequest(iar);
-
                 int countOfAttributesToReturn = state.Attributes.Length;
+                int countOfColumnsToReturn = 0;
 
-                int countOfLines = 0;
-                List<string[]> list = new List<string[]>();
-
-                foreach (SearchResultEntry entry in response.Entries)
+                if (returnDN)
                 {
-                    string[][] result = null;
-                    SearchResultAttributeCollection attributes = entry.Attributes;
-                    if (entry.Attributes.Count != countOfAttributesToReturn) throw new AttributeStoreQueryExecutionException("entry.Attributes.Count != countOfAttributesToReturn");
-                    int indexAttribute = -1;
-                    foreach (DirectoryAttribute attribute in attributes.Values)
-                    {
-                        //Console.Write("{0} ", attribute.Name);
-                        if (countOfLines == 0)
-                        {
-                            countOfLines = attribute.Count;
-                            result = new string[countOfLines][];
-                            for (int k = 0; k < countOfLines; k++)
-                            {
-                                result[k] = new string[countOfAttributesToReturn];
-                            }
-                        }
-                        else if (attribute.Count != countOfLines) throw new AttributeStoreQueryExecutionException("The attributes have not the same count of values");
-                        indexAttribute++;
-
-                        for (int i = 0; i < attribute.Count; i++)
-                        {
-                            if (attribute[i] is string)
-                            {
-                                result[i][indexAttribute] = (string)attribute[i];
-                            }
-                            else if (attribute[i] is byte[])
-                            {
-                                result[i][indexAttribute] = LdapAnonymousStore.ToHexString((byte[])attribute[i]);
-                            }
-                            else
-                            {
-                                throw new AttributeStoreQueryExecutionException("attribute is nor string neither byte");
-                            }
-                        }
-                    }
-                    for (int i = 0; i < result.Length; i++)
-                    {
-                        list.Add(result[i]);
-                    }
-
+                    countOfColumnsToReturn = state.Attributes.Length + 1;
                 }
-                r = list.ToArray();
+                else
+                {
+                    countOfColumnsToReturn = state.Attributes.Length;
+                }
+                r = new string[countOfColumnsToReturn][];
+                List<string>[] resultList = new List<string>[countOfColumnsToReturn];
+
+                //loop to populate each column array
+                for (int columnIndex = 0; columnIndex < countOfColumnsToReturn; columnIndex++)
+                {
+                    int entryIndex = 0;
+                    foreach (SearchResultEntry entry in response.Entries)
+                    {
+                        //if returnDN is true we return it on the column 0
+                        if (returnDN && (columnIndex == 0))
+                        {
+                            //initializing the array for DN
+                            if (resultList[columnIndex] == null)
+                            {
+                                resultList[columnIndex] = new List<string>();
+                            }
+                            resultList[columnIndex].Add(entry.DistinguishedName);
+                        }
+                        else
+                        {
+                            SearchResultAttributeCollection newAttributes = entry.Attributes;
+
+                            //reseting the column index
+                            if (returnDN) { columnIndex = 1; }
+                            else { columnIndex = 0; }
+
+                            foreach (DirectoryAttribute newAttribute in newAttributes.Values)
+                            {
+                                if (resultList[columnIndex] == null)
+                                {
+                                    resultList[columnIndex] = new List<string>();
+                                }
+                               
+                                for (int i = 0; i < newAttribute.Count; i++)
+                                {
+                                    if (newAttribute[i] is string)
+                                    {
+                                        resultList[columnIndex].Add((string)newAttribute[i]);
+                                    }
+
+                                    else if (newAttribute[i] is byte[])
+                                    {
+                                        resultList[columnIndex].Add(LdapAnonymousStore.ToHexString((byte[])newAttribute[i]));
+                                    }
+                                    else
+                                    {
+                                        throw new AttributeStoreQueryExecutionException("attribute is nor string neither byte.");
+                                    }
+                                }
+                                columnIndex++;
+                            }
+                        }
+                        entryIndex++;
+                    }
+                }
+
+                //trasforming an array of List to an jagged array as ADFS is expecting - string[][]
+                for (int i = 0; i < resultList.Length; i++)
+                {
+                    r[i] = resultList[i].ToArray();
+                }
             }
+
             catch (AttributeStoreQueryExecutionException ex)
             {
                 if (withAttributeStoreQueryExecutionException) e = ex;
@@ -226,7 +264,7 @@ namespace CustomLdapStore
         }//endreceiveResponse
         #endregion Callback
 
-        #region IDisposable Membres
+        #region IDisposable Members
 
         public void Dispose()
         {
@@ -240,7 +278,7 @@ namespace CustomLdapStore
     {
         string[] attributesToReturn;
         IAsyncResult result;
-        public LdapAnonymousStoreAsyncState(string[] attributes, IAsyncResult iar)
+        public LdapAnonymousStoreAsyncState(bool returnDN, string[] attributes, IAsyncResult iar)
         {
             attributesToReturn = attributes;
             result = iar;
@@ -256,7 +294,7 @@ namespace CustomLdapStore
 
     }
     /// <summary>
-    /// Wrapper for the test. So the est assembly (TestLdapStore.exe) does not need to reference Microsoft.IdentityServer.ClaimsPolicy
+    /// Wrapper for the test. So the test assembly (TestLdapStore.exe) does not need to reference Microsoft.IdentityServer.ClaimsPolicy
     /// </summary>
     public class WrapLdapAnonymousStore : IDisposable
     {
