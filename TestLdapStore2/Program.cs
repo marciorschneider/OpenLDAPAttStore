@@ -21,7 +21,7 @@ namespace TestLdapStore2
             //IAsyncResult result = attributeStore.BeginExecuteQuery("(&(uid={0})(objectclass=sicrediUsuario));distinguishedName", new string[] { "angelica_adamatti" }, null, null);
             //IAsyncResult result = attributeStore.BeginExecuteQuery("(&(cn=sis_*)(member={0}));truE;cn,objectclass", new string[] { "uid=angelica_adamatti,cn=a,cn=users,dc=sicredi,dc=com,dc=br" }, null, null);
             //IAsyncResult result = attributeStore.BeginExecuteQuery("(&(uid=angelica_adamatti)(objectclass=sicrediusuario));truE;cn", new string[] { "uid=angelica_adamatti,cn=a,cn=users,dc=sicredi,dc=com,dc=br" }, null, null);
-            IAsyncResult result = attributeStore.BeginExecuteQuery("(&(cn=sis_*)(member={0}));true;cn,member", new string[] { "uid=angelica_adamatti,cn=a,cn=users,dc=sicredi,dc=com,dc=br" }, null, null);
+            IAsyncResult result = attributeStore.BeginExecuteQuery("(&(cn=sis_*)(member={0}));true;", new string[] { "uid=angelica_adamatti,cn=a,cn=users,dc=sicredi,dc=com,dc=br" }, null, null);
 
 
 

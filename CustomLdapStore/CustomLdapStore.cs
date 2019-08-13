@@ -47,9 +47,9 @@ namespace CustomLdapStore
                 }
 
                 string attributesList = queryParts[2].Trim();
-                if (attributesList.Length == 0)
+                if (attributesList.Length == 0 && (!returnDN))
                 {
-                    throw new AttributeStoreQueryFormatException("Invalid query: A list of attributes is needed: " + query);
+                    throw new AttributeStoreQueryFormatException("Invalid query: You must specify to return the DN or a list of attributes: " + query);
                 }
 
                 string[] attributesToReturn = attributesList.Split(new char[] { ',' });
@@ -57,7 +57,7 @@ namespace CustomLdapStore
                 {
 
                     attributesToReturn[i] = attributesToReturn[i].Trim();
-                    if (attributesToReturn[i].Length == 0)
+                    if (attributesToReturn[i].Length == 0 && !returnDN)
                     {
                         throw new AttributeStoreQueryFormatException("an attribute does not exist in the query: " + query);
                     }
@@ -65,6 +65,7 @@ namespace CustomLdapStore
 
                 int countOfAttributesToReturn = attributesToReturn.Length;
 
+                attributesToReturn = null;
                 SearchRequest request = new SearchRequest(
                     target,
                     ldapFilter,
@@ -165,16 +166,22 @@ namespace CustomLdapStore
             try
             {
                 SearchResponse response = (SearchResponse)connection.EndSendRequest(iar);
-                int countOfAttributesToReturn = state.Attributes.Length;
+                int countOfAttributesToReturn = 0;
+                if (state.Attributes != null)
+                {
+                    countOfAttributesToReturn = state.Attributes.Length;
+                }
+   
+
                 int countOfColumnsToReturn = 0;
 
                 if (returnDN)
                 {
-                    countOfColumnsToReturn = state.Attributes.Length + 1;
+                    countOfColumnsToReturn = countOfAttributesToReturn + 1;
                 }
                 else
                 {
-                    countOfColumnsToReturn = state.Attributes.Length;
+                    countOfColumnsToReturn = countOfAttributesToReturn;
                 }
                 r = new string[countOfColumnsToReturn][];
                 List<string>[] resultList = new List<string>[countOfColumnsToReturn];
@@ -292,28 +299,5 @@ namespace CustomLdapStore
             get { return result; }
         }
 
-    }
-    /// <summary>
-    /// Wrapper for the test. So the test assembly (TestLdapStore.exe) does not need to reference Microsoft.IdentityServer.ClaimsPolicy
-    /// </summary>
-    public class WrapLdapAnonymousStore : IDisposable
-    {
-        LdapAnonymousStore store = new LdapAnonymousStore();
-        public IAsyncResult BeginExecuteQuery(string query, string[] parameters, AsyncCallback callback, object state)
-        {
-            return store.BeginExecuteQuery(query, parameters, callback, state);
-        }
-        public string[][] EndExecuteQuery(IAsyncResult result)
-        {
-            return EndExecuteQuery(result);
-        }
-        public void Initialize(Dictionary<string, string> config)
-        {
-            store.Initialize(config);
-        }
-        public void Dispose()
-        {
-            store.Dispose();
-        }
     }
 }//end namespace

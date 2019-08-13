@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-                <configuration>
-                    <host>openldap-slave.sicredi.net:389</host>
-                    <base>dc=sicredi,dc=com,dc=br</base>
-                    <parameters>
-                        <parameter>mail</parameter>
-                    </parameters>
-                    <filter>(&amp;(uid={0})(objectclass=sicrediUsuario));mail</filter>
-                </configuration>
