@@ -11,14 +11,13 @@ namespace OpenLDAPStore
         LdapConnection connection;
         string target;
         bool returnDN;
-
         bool withAttributeStoreQueryExecutionException = false;
 
         #region IAttributeStore Members
 
         public IAsyncResult BeginExecuteQuery(string query, string[] parameters, AsyncCallback callback, object state)
         {
-            if (query == null || query.Length == 0) throw new AttributeStoreQueryFormatException("The query received is null");
+            if (query == null || query.Length == 0) throw new AttributeStoreQueryFormatException("The query received is null.");
 
             AsyncResult queryResult;
 
@@ -59,7 +58,7 @@ namespace OpenLDAPStore
                     attributesToReturn[i] = attributesToReturn[i].Trim();
                     if (attributesToReturn[i].Length == 0 && !returnDN)
                     {
-                        throw new AttributeStoreQueryFormatException("an attribute does not exist in the query: " + query);
+                        throw new AttributeStoreQueryFormatException("An attribute does not exist in the query: " + query);
                     }
                 }
 
@@ -79,7 +78,7 @@ namespace OpenLDAPStore
             {
                 string msg;
                 try { msg = e.Message; }
-                catch { msg = "The request is not accepted by the ldap server"; }
+                catch { msg = "The request is not accepted by the ldap server."; }
                 throw new AttributeStoreQueryExecutionException(e.GetType() + msg, e);
             }
             return queryResult;
@@ -95,8 +94,8 @@ namespace OpenLDAPStore
             if (config == null) throw new ArgumentNullException("config is null");
 
             string host;
-            if (!config.TryGetValue("base", out target)) throw new AttributeStoreInvalidConfigurationException("The parameter base is not present");
-            if (!config.TryGetValue("host", out host)) throw new AttributeStoreInvalidConfigurationException("The parameter host is not present");
+            if (!config.TryGetValue("base", out target)) throw new AttributeStoreInvalidConfigurationException("The parameter base is not present.");
+            if (!config.TryGetValue("host", out host)) throw new AttributeStoreInvalidConfigurationException("The parameter host is not present.");
 
             string WithQueryExecutionException;
             if (!config.TryGetValue("withexception", out WithQueryExecutionException))
@@ -132,7 +131,7 @@ namespace OpenLDAPStore
             {
                 string msgt;
                 try { msgt = e.Message; }
-                catch { msgt = "error whith the host : " + host; }
+                catch { msgt = "Error whith the host: " + host; }
                 string msg = string.Format("Connection error {0} : {1}", e.GetType(), msgt);
                 throw new AttributeStoreInvalidConfigurationException(msg, e);
             }
@@ -159,27 +158,26 @@ namespace OpenLDAPStore
         {
             Exception e = null;
             string[][] returnData = null;
-
             LdapAnonymousStoreAsyncState state = (LdapAnonymousStoreAsyncState)iar.AsyncState;
 
             try
             {
                 SearchResponse response = (SearchResponse)connection.EndSendRequest(iar);
-
                 int countOfRowsToReturn = 0;
                 int columnIndex = 0;
+                int numberOfExpectedAttributesToReturn = 0;
 
                 //getting the number of columns to return
                 int countOfColumnsToReturn = 0;
                 if (state.Attributes != null && state.Attributes[0] != "")
                 {
                     countOfColumnsToReturn = state.Attributes.Length;
+                    numberOfExpectedAttributesToReturn = state.Attributes.Length;
                 }
                 if (returnDN)
                 {
                     countOfColumnsToReturn++;
                 }
-
 
                 List<string>[] claimDataArr = new List<string>[countOfColumnsToReturn];
                 //initializing the claimDataArr
@@ -188,9 +186,22 @@ namespace OpenLDAPStore
                     claimDataArr[i] = new List<string>();
                 }
 
-                //getting the values
+                //getting the values from LDAP
                 foreach (SearchResultEntry entry in response.Entries)
                 {
+
+                    //testing if the query attributes are all available in the result
+                    if (entry.Attributes.Count != numberOfExpectedAttributesToReturn && response.Entries.Count == 1)
+                    {
+                        throw new AttributeStoreQueryExecutionException("Number of returned attributes is not the same requested. Are you querying an invalid attribute?");
+                    }
+                    
+                    //testing that all the entries have the same number of attributes. If not the columns would be misaligned and we should throw an exception
+                    if (entry.Attributes.Count != numberOfExpectedAttributesToReturn)
+                    {
+                        throw new AttributeStoreQueryExecutionException("Number of attributes is not the same on all the result entries. Are there entries with empty attributes?");
+                    }
+
                     columnIndex = 0;
                     if (returnDN && columnIndex == 0)
                     {
@@ -230,7 +241,7 @@ namespace OpenLDAPStore
                     }
                 }
 
-                //initializing the response array
+                //initializing the response array with null
                 returnData = new string[countOfRowsToReturn][];
                 for (int i = 0; i < countOfRowsToReturn; i++)
                 {
@@ -241,6 +252,18 @@ namespace OpenLDAPStore
                     }
                 }
 
+                /* 
+                 
+                Since ADFS is expecting the result on a tabular format whe need the reformat the result like this:
+                
+                X________________________________________________
+               Y|column1_____|column2_____|column3______________|
+                |john________|HR_manager__|john@contoso.com_____|
+                |null________|null________|smith@contoso.com____|
+                |null________|null________|jsmith@contoso.com___|
+                
+                 */
+                
                 //copying values from claimDataArr to result[][]
                 for(int x=0;x < claimDataArr.Length;x++)
                 {

@@ -4,3 +4,4 @@ C:\GitHub\anonymldapattstore\OpenLDAPStore\obj\Debug\OpenLDAPStore.csproj.CoreCo
 C:\GitHub\anonymldapattstore\OpenLDAPStore\obj\Debug\OpenLDAPStore.csproj.CopyComplete
 C:\GitHub\anonymldapattstore\OpenLDAPStore\obj\Debug\OpenLDAPStore.dll
 C:\GitHub\anonymldapattstore\OpenLDAPStore\obj\Debug\OpenLDAPStore.pdb
+C:\GitHub\anonymldapattstore\OpenLDAPStore\obj\Debug\OpenLDAPStore.csprojAssemblyReference.cache

@@ -33,8 +33,12 @@ namespace TestLdapStore
                 int numberOfColumns = 0;
                 int numberOfRows = 0;
 
-                numberOfColumns = data[0].Length;
-                numberOfRows = data.Length;
+                if (data.Length > 0)
+                {
+                    numberOfColumns = data[0].Length;
+                    numberOfRows = data.Length;
+                }
+
 
                 Console.WriteLine();
                 for (int i = 0; i < numberOfColumns; i++)
