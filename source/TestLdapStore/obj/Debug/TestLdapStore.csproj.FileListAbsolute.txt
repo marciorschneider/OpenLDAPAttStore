@@ -20,3 +20,14 @@ C:\GitHub\anonymldapattstore\TestLdapStore\obj\Debug\TestLdapStore.csproj.CoreCo
 C:\GitHub\anonymldapattstore\TestLdapStore\obj\Debug\TestLdapStore.csproj.CopyComplete
 C:\GitHub\anonymldapattstore\TestLdapStore\obj\Debug\TestLdapStore.exe
 C:\GitHub\anonymldapattstore\TestLdapStore\obj\Debug\TestLdapStore.pdb
+C:\GitHub\anonymldapattstore\source\TestLdapStore\bin\Debug\TestLdapStore.exe.config
+C:\GitHub\anonymldapattstore\source\TestLdapStore\bin\Debug\TestLdapStore.exe
+C:\GitHub\anonymldapattstore\source\TestLdapStore\bin\Debug\TestLdapStore.pdb
+C:\GitHub\anonymldapattstore\source\TestLdapStore\bin\Debug\OpenLDAPStore.dll
+C:\GitHub\anonymldapattstore\source\TestLdapStore\bin\Debug\Microsoft.IdentityServer.ClaimsPolicy.dll
+C:\GitHub\anonymldapattstore\source\TestLdapStore\bin\Debug\OpenLDAPStore.pdb
+C:\GitHub\anonymldapattstore\source\TestLdapStore\obj\Debug\TestLdapStore.csprojAssemblyReference.cache
+C:\GitHub\anonymldapattstore\source\TestLdapStore\obj\Debug\TestLdapStore.csproj.CoreCompileInputs.cache
+C:\GitHub\anonymldapattstore\source\TestLdapStore\obj\Debug\TestLdapStore.csproj.CopyComplete
+C:\GitHub\anonymldapattstore\source\TestLdapStore\obj\Debug\TestLdapStore.exe
+C:\GitHub\anonymldapattstore\source\TestLdapStore\obj\Debug\TestLdapStore.pdb
