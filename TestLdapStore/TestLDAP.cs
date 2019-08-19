@@ -14,29 +14,37 @@ namespace TestLdapStore
             LdapAnonymousStore attributeStore = new LdapAnonymousStore();
             Dictionary<string, string> config = new Dictionary<string, string>();
 
-            if (args.Length != 2)
+            if (args.Length != 4)
             {
-                Console.WriteLine("Enter a filter and a parameter.");
+                Console.WriteLine("Enter a host, base, filter and a parameter.");
             }
             else
             {
-                string filter = args[0];
-                string parameters = args[1];
-
-                config.Add("host", "openldap-slave.sicredi.net");
-                config.Add("base", "dc=sicredi,dc=com,dc=br");
+                config.Add("host", args[0]);
+                config.Add("base", args[1]);
+                string filter = args[2];
+                string parameters = args[3];
 
                 attributeStore.Initialize(config);
                 IAsyncResult result = attributeStore.BeginExecuteQuery(filter, new string[] { parameters }, null, null);
-             
+
                 string[][] data = attributeStore.EndExecuteQuery(result);
-                foreach (string[] row in data)
+
+                int numberOfColumns = 0;
+                int numberOfRows = 0;
+
+                numberOfColumns = data[0].Length;
+                numberOfRows = data.Length;
+
+                Console.WriteLine();
+                for (int i = 0; i < numberOfColumns; i++)
                 {
-                    foreach (string col in row)
+                    for (int k = 0;k < numberOfRows ; k++)
                     {
-                        Console.Write("{0}\n", col);
+                        if (data[k][i] != null)
+                        Console.WriteLine(data[k][i]);
                     }
-                    Console.WriteLine();
+                    Console.WriteLine("--------------");
                 }
             }
         }

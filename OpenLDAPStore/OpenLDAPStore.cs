@@ -158,98 +158,103 @@ namespace OpenLDAPStore
         public void ReceiveResponse(IAsyncResult iar)
         {
             Exception e = null;
-            string[][] r = null;
+            string[][] returnData = null;
 
             LdapAnonymousStoreAsyncState state = (LdapAnonymousStoreAsyncState)iar.AsyncState;
 
             try
             {
                 SearchResponse response = (SearchResponse)connection.EndSendRequest(iar);
-                int countOfAttributesToReturn = 0;
 
-               if (state.Attributes != null && state.Attributes[0] != "")
-                {
-                    countOfAttributesToReturn = state.Attributes.Length;
-                }
+                int countOfRowsToReturn = 0;
+                int columnIndex = 0;
 
+                //getting the number of columns to return
                 int countOfColumnsToReturn = 0;
-
+                if (state.Attributes != null && state.Attributes[0] != "")
+                {
+                    countOfColumnsToReturn = state.Attributes.Length;
+                }
                 if (returnDN)
                 {
-                    countOfColumnsToReturn = countOfAttributesToReturn + 1;
+                    countOfColumnsToReturn++;
                 }
-                else
-                {
-                    countOfColumnsToReturn = countOfAttributesToReturn;
-                }
-                r = new string[countOfColumnsToReturn][];
-                List<string>[] resultList = new List<string>[countOfColumnsToReturn];
 
-                //loop to populate each column array
-                for (int columnIndex = 0; columnIndex < countOfColumnsToReturn; columnIndex++)
+
+                List<string>[] claimDataArr = new List<string>[countOfColumnsToReturn];
+                //initializing the claimDataArr
+                for (int i = 0; i < claimDataArr.Length; i++)
                 {
-                    int entryIndex = 0;
-                    foreach (SearchResultEntry entry in response.Entries)
+                    claimDataArr[i] = new List<string>();
+                }
+
+                //getting the values
+                foreach (SearchResultEntry entry in response.Entries)
+                {
+                    columnIndex = 0;
+                    if (returnDN && columnIndex == 0)
                     {
-                        //if returnDN is true we return it on the column 0
-                        if (returnDN && (columnIndex == 0))
+                        claimDataArr[columnIndex].Add(entry.DistinguishedName);
+                        columnIndex++;
+                    }
+
+                    SearchResultAttributeCollection attrs = entry.Attributes;
+                    foreach (DirectoryAttribute attr in attrs.Values)
+                    {
+                        for (int k = 0;k < attr.Count;k++)
                         {
-                            //initializing the array for DN
-                            if (resultList[columnIndex] == null)
+                            if (attr[k] is string)
                             {
-                                resultList[columnIndex] = new List<string>();
+                                claimDataArr[columnIndex].Add(attr[k].ToString());
                             }
-                            resultList[columnIndex].Add(entry.DistinguishedName);
-                        }
-                        else
-                        {
-                            SearchResultAttributeCollection newAttributes = entry.Attributes;
-
-                            //reseting the column index
-                            if (returnDN) { columnIndex = 1; }
-                            else { columnIndex = 0; }
-
-                            foreach (DirectoryAttribute newAttribute in newAttributes.Values)
+                            else if (attr[k] is byte)
                             {
-                                if (resultList[columnIndex] == null)
-                                {
-                                    resultList[columnIndex] = new List<string>();
-                                }
-
-                                for (int i = 0; i < newAttribute.Count; i++)
-                                {
-                                    if (newAttribute[i] is string)
-                                    {
-                                        resultList[columnIndex].Add((string)newAttribute[i]);
-                                    }
-
-                                    else if (newAttribute[i] is byte[])
-                                    {
-                                        resultList[columnIndex].Add(LdapAnonymousStore.ToHexString((byte[])newAttribute[i]));
-                                    }
-                                    else
-                                    {
-                                        throw new AttributeStoreQueryExecutionException("attribute is nor string neither byte.");
-                                    }
-                                }
-                                columnIndex++;
+                                claimDataArr[columnIndex].Add(ToHexString((byte[])attr[k]));
+                            }
+                            else
+                            {
+                                throw new AttributeStoreQueryExecutionException("Attribute is not string or byte.");
                             }
                         }
-                        entryIndex++;
+                        columnIndex++;
                     }
                 }
 
-                //trasforming an array of List to a multidimensional array as ADFS is expecting - string[][]
-                for (int i = 0; i < resultList.Length; i++)
+                //getting the max number of rows to return
+                countOfRowsToReturn = 0;
+                for (int i = 0; i < claimDataArr.Length; i++)
                 {
-                    r[i] = resultList[i].ToArray();
+                    if (claimDataArr[i].Count > countOfRowsToReturn)
+                    {
+                        countOfRowsToReturn = claimDataArr[i].Count;
+                    }
+                }
+
+                //initializing the response array
+                returnData = new string[countOfRowsToReturn][];
+                for (int i = 0; i < countOfRowsToReturn; i++)
+                {
+                    returnData[i] = new string[countOfColumnsToReturn];
+                    for (int k = 0; k < countOfColumnsToReturn; k++)
+                    {
+                        returnData[i][k] = null;
+                    }
+                }
+
+                //copying values from claimDataArr to result[][]
+                for(int x=0;x < claimDataArr.Length;x++)
+                {
+                    for (int y = 0; y < claimDataArr[x].Count; y++)
+                    {
+                        returnData[y][x] = claimDataArr[x][y].ToString();
+                    }
                 }
             }
 
             catch (AttributeStoreQueryExecutionException ex)
             {
                 if (withAttributeStoreQueryExecutionException) e = ex;
-                else r = new string[0][];
+                else returnData = new string[0][];
             }
             catch (Exception ex)
             {
@@ -258,15 +263,15 @@ namespace OpenLDAPStore
                     string msg;
                     try { msg = ex.Message; }
                     catch { msg = "The Response received from the server is an error"; }
-                    e = new AttributeStoreQueryExecutionException(ex.GetType() + " : " + msg, ex);
+                    e = new AttributeStoreQueryExecutionException(ex.GetType() + ": " + msg, ex);
                 }
                 else
                 {
-                    r = new string[0][];
+                    returnData = new string[0][];
                 }
             }
             TypedAsyncResult<string[][]> typed = (TypedAsyncResult<string[][]>)state.AsyncResult;
-            typed.Complete(r, false, e);
+            typed.Complete(returnData, false, e);
         }//endreceiveResponse
         #endregion Callback
 
