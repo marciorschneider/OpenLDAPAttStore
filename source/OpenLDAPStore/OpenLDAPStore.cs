@@ -88,7 +88,7 @@ namespace OpenLDAPStore
                     throw new AttributeStoreQueryFormatException("Invalid query: You must specify if the query should return the DN: " + query);
                 }
 
-                string attributesList = queryParts[2].Trim();
+                string attributesList = queryParts[4].Trim();
                 if (attributesList.Length == 0 && (!returnDN))
                 {
                     throw new AttributeStoreQueryFormatException("Invalid query: You must specify to return the DN or a list of attributes: " + query);
