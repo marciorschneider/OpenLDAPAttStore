@@ -23,7 +23,7 @@ namespace TestLdapStore
             else
             {
                 config.Add("host", args[0]);
-                string query = args[0];
+                string query = args[1];
 
                 try
                 {
