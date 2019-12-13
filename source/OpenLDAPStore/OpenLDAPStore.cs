@@ -9,7 +9,10 @@ namespace OpenLDAPStore
     public class LdapAnonymousStore : IAttributeStore, IDisposable
     {
         LdapConnection connection;
-        string target;
+        //string target;
+        string searchBase;
+        string stringSearchScope;
+        SearchScope searchScope;
         bool returnDN;
         bool withAttributeStoreQueryExecutionException = false;
 
@@ -21,31 +24,71 @@ namespace OpenLDAPStore
 
             AsyncResult queryResult;
 
+            /*the query must have 5 parameters:
+                seach base
+                search scope (base,onelevel,subtree)
+                ldap filter
+                if it should return DN (boolean)
+                attribute list
+            */
+
             try
             {
                 if (parameters != null && parameters.Length != 0) query = string.Format(query, parameters);
                 string[] queryParts = query.Split(new char[] { ';' });
-                if (queryParts.Length != 3)
+                if (queryParts.Length != 5)
                 {
-                    throw new AttributeStoreQueryFormatException("Invalid query: A query must have three parts: " + query);
+                    throw new AttributeStoreQueryFormatException("Invalid query: A query must have five parts: " + query);
                 }
-                string ldapFilter = queryParts[0].Trim();
+
+                //getting the searchbase
+                searchBase = queryParts[0].Trim();
+                if (searchBase.Length == 0)
+                {
+                    throw new AttributeStoreQueryFormatException("Invalid query: A search base is needed: " + query);
+                }
+
+
+                //getting the search scope
+                stringSearchScope = queryParts[1].ToLower().Trim();
+                switch (stringSearchScope)
+                {
+                    case "base":
+                        searchScope = SearchScope.Base;
+                        break;
+
+                    case "onelevel":
+                        searchScope = SearchScope.OneLevel;
+                        break;
+
+                    case "subtree":
+                        searchScope = SearchScope.Subtree;
+                        break;
+
+                    default:
+                        throw new AttributeStoreQueryFormatException("Invalid query: Search scope is invalid: " + query);
+                }
+
+
+                //getting the ldap filter
+                string ldapFilter = queryParts[2].Trim();
                 if (ldapFilter.Length == 0)
                 {
                     throw new AttributeStoreQueryFormatException("Invalid query: A filter is needed: " + query);
                 }
 
+
                 //verifying if we should return the object DN
                 try
                 {
-                    returnDN = Convert.ToBoolean(queryParts[1].Trim());
+                    returnDN = Convert.ToBoolean(queryParts[3].Trim());
                 }
                 catch
                 {
                     throw new AttributeStoreQueryFormatException("Invalid query: You must specify if the query should return the DN: " + query);
                 }
 
-                string attributesList = queryParts[2].Trim();
+                string attributesList = queryParts[4].Trim();
                 if (attributesList.Length == 0 && (!returnDN))
                 {
                     throw new AttributeStoreQueryFormatException("Invalid query: You must specify to return the DN or a list of attributes: " + query);
@@ -64,10 +107,11 @@ namespace OpenLDAPStore
 
                 int countOfAttributesToReturn = attributesToReturn.Length;
 
+                //submiting the search to LDAP server
                 SearchRequest request = new SearchRequest(
-                    target,
+                    searchBase,
                     ldapFilter,
-                    SearchScope.Subtree,
+                    searchScope,
                     attributesToReturn);
 
                 queryResult = new TypedAsyncResult<string[][]>(callback, state);
@@ -94,7 +138,6 @@ namespace OpenLDAPStore
             if (config == null) throw new ArgumentNullException("config is null");
 
             string host;
-            if (!config.TryGetValue("base", out target)) throw new AttributeStoreInvalidConfigurationException("The parameter base is not present.");
             if (!config.TryGetValue("host", out host)) throw new AttributeStoreInvalidConfigurationException("The parameter host is not present.");
 
             string WithQueryExecutionException;
