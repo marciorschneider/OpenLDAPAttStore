@@ -24,7 +24,7 @@ As a bonus, the OpenLdapAttStore provider comes with a more powerful query engin
 
 * On the ADFS console go to Service -> Attribute Stores and select **Add Custom Attribute Store**.
 * Write a descriptive name on "Display Name", like *OpenLDAP*.
-* On **Custom attribute store class name**: Write *openLDAPStore.LdapAnonymousStore.OpenLDAPStore*.
+* On **Custom attribute store class name**: Write *OpenLDAPStore.LdapAnonymousStore,OpenLDAPStore*.
 * On **Optional initialization parameters:** add an item with the following parameters:
 	* **Parameter name**: *host*
 	* **Parameter Value**: use a LDAP server address.
